@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/1.5.3/jspdf.debug.js"
+            integrity="sha384-NaWTHo/8YCBYJ59830LTz/P4aQZK1sS0SneOgAvhsIl3zBu8r9RevNg5lHCHAuQ/"
+            crossorigin="anonymous"
+    ></script>
+    <title>Squadre di Calcetto</title>
+    <!-- Bootstrap CSS CDN -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <style>
+        hr {
+            background-color: white;
+            color: white;
+        }
+        /* Existing styles */
+        #playerList {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 10px;
+        }
+
+        /* Add this rule for transparent list group items */
+        .list-group-item {
+            background-color: transparent !important;
+            border: none;
+            padding: 5px;
+            margin: 1px;
+        }
+
+
+    </style>
+</head>
+<body class="bg-dark text-white">
+<div class="container mt-4">
+    <div class="col-12 d-flex justify-content-center mb-4">
+        <h1>Generatore di Squadre di Calcetto</h1>
+    </div>
+    <div class="row d-flex justify-content-between">
+        <div class="col-md-4">
+                <div class="d-flex gap-4 align-items-center justify-content-center mb-4">
+                    <div class="form-group mb-0 mx-1">
+                        <input placeholder="Nome..." type="text" id="playerName" class="form-control" required="">
+                    </div>
+                    <div class="form-group mb-0 mx-1">
+                        <select placeholder="Valore" id="playerValue" class="form-control w-auto" required="">
+                            <!-- Opzioni da 1 a 10 con decimali -->
+                            <option value="1">1</option>
+                            <option value="1.5">1,5</option>
+                            <option value="2">2</option>
+                            <option value="2.5">2,5</option>
+                            <option value="3">3</option>
+                            <option value="3.5">3,5</option>
+                            <option value="4">4</option>
+                            <option value="4.5">4,5</option>
+                            <option value="5">5</option>
+                            <option value="5.5">5,5</option>
+                            <option value="6">6</option>
+                            <option value="6.5">6,5</option>
+                            <option value="7">7</option>
+                            <option value="7.5">7,5</option>
+                            <option value="8">8</option>
+                            <option value="8.5">8,5</option>
+                            <option value="9">9</option>
+                            <option value="9.5">9,5</option>
+                            <option value="10">10</option>
+                        </select>
+                    </div>
+                    <button type="button" class="btn btn-primary  mx-1" onclick="addPlayer()">Aggiungi</button>
+                </div>
+            <button type="button" class="btn btn-success" onclick="generateTeams()">Genera</button>
+            <button type="button" class="btn btn-info" id="shuffleButton" onclick="shuffleTeams()" disabled>
+                Rimescola
+            </button>
+            <button type="button" class="btn btn-warning" onclick="downloadTeams()">Download</button>
+
+        </div>
+        <div class="col-md-6 d-flex flex-column align-items-end">
+            <h2 class="m-0">Giocatori aggiunti (<span id="playerCount">0</span>):</h2>
+            <ul id="playerList" class="list-group mb-3"></ul>
+        </div>
+    </div>
+
+    <hr class="hr hr-blurry my-5"/>
+
+    <div class="row mt-4">
+        <div class="col-md-6 d-flex flex-column align-items-center">
+            <h2><b>CHIARI</b></h2>
+            <ul id="team1" class="list-group"></ul>
+            <p class="text-success mt-2">VALORE TOTALE: <span id="totalValue1">0</span></p>
+        </div>
+        <div class="col-md-6 d-flex flex-column align-items-center">
+            <h2><b>SCURI</b></h2>
+            <ul id="team2" class="list-group"></ul>
+            <p class="text-success mt-2">VALORE TOTALE: <span id="totalValue2">0</span></p>
+        </div>
+    </div>
+</div>
+
+<script>
+    const players = []
+    let playerGridColumns = 1
+
+    function addPlayer() {
+        if (players.length == 10) {
+
+            document.querySelector('button[onclick=\'addPlayer()\']').disabled = true
+            return
+        }
+
+        const playerName = document.getElementById('playerName').value
+        const playerValue = parseFloat(document.getElementById('playerValue').value)
+
+        if (playerName && !isNaN(playerValue)) {
+            players.push({ name: playerName, value: playerValue })
+            updatePlayerList()
+        }
+
+        document.getElementById('playerName').value = ''
+        document.getElementById('playerValue').value = '1'
+        document.getElementById('playerCount').innerText = players.length
+    }
+
+    function downloadTeams() {
+        if (typeof jsPDF === 'undefined') {
+            console.warn('jsPDF non è definito. Assicurati di includere la libreria.')
+            return
+        }
+
+        const doc = new jsPDF()
+
+        // Imposta il font di base per il documento
+        doc.setFont('helvetica')
+
+        // Coordinata Y iniziale per entrambe le squadre
+        let startY = 40 // Inizia un po' più in basso per dare spazio ai titoli
+
+        // Coordinata X per Squadra 1 e Squadra 2
+        const xTeam1 = 10
+        const xTeam2 = 105 // Posizionamento a metà pagina per un formato A4 in verticale (larghezza totale circa 210mm)
+
+        // Imposta il font in grassetto e il colore rosso per il nome della Squadra 1
+        doc.setFontSize(20) // Dimensione del carattere base + 2
+        doc.setFont(undefined, 'bold')
+        doc.setTextColor(255, 0, 0) // Rosso
+        doc.text('CHIARI', xTeam1, 30)
+
+        // Resetta il font per i giocatori della Squadra 1
+        doc.setFontSize(14)
+        doc.setFont(undefined, 'normal')
+        doc.setTextColor(0, 0, 0) // Nero
+        const team1Players = document.getElementById('team1').children
+        for (let player of team1Players) {
+            doc.text(player.textContent, xTeam1, startY)
+            startY += 10 // Incrementa l'asse Y per il prossimo giocatore
+        }
+
+        // Reimposta la coordinata Y per la Squadra 2 e prepara il font e il colore
+        startY = 40 // Ripristina a 30 per iniziare dalla stessa altezza della Squadra 1
+        doc.setFontSize(20) // Dimensione del carattere base + 2
+        doc.setFont(undefined, 'bold')
+        doc.setTextColor(0, 0, 255) // Blu
+        doc.text('SCURI', xTeam2, 30)
+
+        // Resetta il font per i giocatori della Squadra 2
+        doc.setFontSize(14)
+        doc.setFont(undefined, 'normal')
+        doc.setTextColor(0, 0, 0) // Nero
+        const team2Players = document.getElementById('team2').children
+        for (let player of team2Players) {
+            doc.text(player.textContent, xTeam2, startY)
+            startY += 10 // Incrementa l'asse Y per il prossimo giocatore
+        }
+
+        // Salva il documento
+        doc.save('squadre_calcetto.pdf')
+    }
+
+    function updatePlayerList() {
+        const playerList = document.getElementById('playerList')
+        playerList.innerHTML = ''
+
+        // Aggiorna la griglia se necessario
+        updateGridColumns(players.length)
+
+        players.forEach(player => {
+            const listItem = document.createElement('li')
+            listItem.textContent = `${player.name}`
+            listItem.className = 'list-group-item'
+            playerList.appendChild(listItem)
+        })
+    }
+
+    function updateGridColumns(playerCount) {
+        if (playerCount > 2) {
+            playerGridColumns = Math.ceil(playerCount / 2)
+            document.getElementById('playerList').style.gridTemplateColumns = `repeat(${playerGridColumns}, 1fr)`
+        } else {
+            document.getElementById('playerList').style.gridTemplateColumns = 'repeat(1, 1fr)'
+        }
+    }
+
+    function generateTeams(playersToSplit = players) {
+        const team1 = [], team2 = []
+        let totalValue1 = 0, totalValue2 = 0
+
+        playersToSplit.sort((a, b) => b.value - a.value).forEach(player => {
+            if (totalValue1 <= totalValue2) {
+                team1.push(player)
+                totalValue1 += player.value
+            } else {
+                team2.push(player)
+                totalValue2 += player.value
+            }
+        })
+
+        displayTeam('team1', team1, totalValue1)
+        displayTeam('team2', team2, totalValue2)
+
+        document.getElementById('shuffleButton').removeAttribute('disabled')
+    }
+
+    function shuffleTeams() {
+        const shuffledPlayers = [...players].sort(() => Math.random() - 0.5)
+        generateTeams(shuffledPlayers)
+    }
+
+    function displayTeam(teamId, team, totalValue) {
+        const teamList = document.getElementById(teamId)
+        teamList.innerHTML = ''
+        const totalValueElement = document.getElementById(`totalValue${teamId.charAt(4)}`)
+
+        team.forEach(player => {
+            const listItem = document.createElement('li')
+            listItem.textContent = `${player.name} - ${player.value}`
+            listItem.className = 'list-group-item'
+            teamList.appendChild(listItem)
+        })
+
+        totalValueElement.innerText = totalValue
+    }
+</script>
+<!-- Bootstrap JS, Popper.js, and jQuery -->
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</body>
+</html>
