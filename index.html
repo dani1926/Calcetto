@@ -105,11 +105,6 @@
     let playerGridColumns = 1
 
     function addPlayer() {
-        if (players.length == 10) {
-
-            document.querySelector('button[onclick=\'addPlayer()\']').disabled = true
-            return
-        }
 
         const playerName = document.getElementById('playerName').value
         const playerValue = parseFloat(document.getElementById('playerValue').value)
