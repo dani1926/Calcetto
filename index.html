@@ -230,7 +230,7 @@
 
         team.forEach(player => {
             const listItem = document.createElement('li')
-            listItem.textContent = `${player.name} `
+            listItem.textContent = `${player.name} -${player.value} `
             listItem.className = 'list-group-item'
             teamList.appendChild(listItem)
         })
