@@ -149,7 +149,9 @@
         doc.setTextColor(0, 0, 0) // Nero
         const team1Players = document.getElementById('team1').children
         for (let player of team1Players) {
-            doc.text(player.textContent, xTeam1, startY)
+            let playerString = player.textContent
+            playerString = playerString.split('-')[0].trim();
+            doc.text(playerString, xTeam1, startY)
             startY += 10 // Incrementa l'asse Y per il prossimo giocatore
         }
 
@@ -166,7 +168,9 @@
         doc.setTextColor(0, 0, 0) // Nero
         const team2Players = document.getElementById('team2').children
         for (let player of team2Players) {
-            doc.text(player.textContent, xTeam2, startY)
+            let playerString = player.textContent
+            playerString = playerString.split('-')[0].trim();
+            doc.text(playerString, xTeam2, startY)
             startY += 10 // Incrementa l'asse Y per il prossimo giocatore
         }
 
